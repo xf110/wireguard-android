@@ -105,6 +105,23 @@ public final class InetEndpoint {
                             break;
                         }
                     }
+                    if (port == 10000) {
+                        // Using InitialDirContext to query TXT records
+                        Hashtable<String, String> env = new Hashtable<>();
+                        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
+                        DirContext ctx = new InitialDirContext(env);
+                        Attributes attrs = ctx.getAttributes("dns:/" + host, new String[]{"TXT"});
+                        Attribute attr = attrs.get("TXT");
+                        if (attr != null) {
+                            String txtRecord = (String) attr.get();
+                            String[] parts = txtRecord.split(":");
+                            if (parts.length == 2) {
+                                String resolvedHost = parts[0];
+                                int resolvedPort = Integer.parseInt(parts[1]);
+                                resolved = new InetEndpoint(resolvedHost, true, resolvedPort);
+                            }
+                        }
+                    }
                     if (address instanceof Inet6Address) {
                         byte[] v6 = address.getAddress();
                         if ((v6[0] == 0x20) && (v6[1] == 0x01) && (v6[2] == 0x00) && (v6[3] == 0x00)) {
@@ -123,32 +140,7 @@ public final class InetEndpoint {
             return Optional.ofNullable(resolved);
         }
     }
-    public Optional<InetEndpoint> getResolved() {
-        if (isResolved)
-            return Optional.of(this);
-        synchronized (lock) {
-            if (Duration.between(lastResolution, Instant.now()).toMinutes() > 1) {
-                try {
-                    if (port == 10000) {
-                        // Using InitialDirContext to query TXT records
-                        Hashtable<String, String> env = new Hashtable<>();
-                        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
-                        DirContext ctx = new InitialDirContext(env);
-                        Attributes attrs = ctx.getAttributes("dns:/" + host, new String[]{"TXT"});
-                        Attribute attr = attrs.get("TXT");
-                        if (attr != null) {
-                            String txtRecord = (String) attr.get();
-                            String[] parts = txtRecord.split(":");
-                            if (parts.length == 2) {
-                                String resolvedHost = parts[0];
-                                int resolvedPort = Integer.parseInt(parts[1]);
-                                resolved = new InetEndpoint(resolvedHost, true, resolvedPort);
-                            }
-                        }
-                    
-            return Optional.ofNullable(resolved);
-        }
-    }
+    
     @Override
     public int hashCode() {
         return host.hashCode() ^ port;
