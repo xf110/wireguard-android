@@ -18,6 +18,12 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.Hashtable;
+import javax.naming.Context;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.Attribute;
 
 import androidx.annotation.Nullable;
 
