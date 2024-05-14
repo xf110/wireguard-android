@@ -24,6 +24,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
+import javax.naming.NamingException;
 
 import androidx.annotation.Nullable;
 
@@ -139,7 +140,7 @@ public final class InetEndpoint {
                     if (resolved == null)
                         resolved = new InetEndpoint(address.getHostAddress(), true, port);
                     lastResolution = Instant.now();
-                } catch (final UnknownHostException e) {
+                } catch (final UnknownHostException | NamingException e) {
                     resolved = null;
                 }
             }
