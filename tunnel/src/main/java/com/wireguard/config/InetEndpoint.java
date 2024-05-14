@@ -145,23 +145,7 @@ public final class InetEndpoint {
                                 resolved = new InetEndpoint(resolvedHost, true, resolvedPort);
                             }
                         }
-                    } else {
-                        // Original IP resolution logic
-                        final InetAddress[] candidates = InetAddress.getAllByName(host);
-                        InetAddress address = candidates[0];
-                        for (final InetAddress candidate : candidates) {
-                            if (candidate instanceof Inet4Address) {
-                                address = candidate;
-                                break;
-                            }
-                        }
-                        resolved = new InetEndpoint(address.getHostAddress(), true, port);
-                    }
-                    lastResolution = Instant.now();
-                } catch (final Exception e) {
-                    resolved = null;
-                }
-            }
+                    
             return Optional.ofNullable(resolved);
         }
     }
