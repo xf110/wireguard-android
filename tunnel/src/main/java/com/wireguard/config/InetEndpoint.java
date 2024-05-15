@@ -17,7 +17,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.net.URI;
 import java.net.InetSocketAddress;
-import java.net.InetSocketA
+import java.net.InetSocketA;
 
 /**
  * An external endpoint (host and port) used to connect to a WireGuard {@link Peer}.
