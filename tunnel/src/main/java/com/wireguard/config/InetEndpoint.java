@@ -2,32 +2,22 @@
  * Copyright © 2017-2023 WireGuard LLC. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
-package com.wireguard.config;
-
-import com.wireguard.util.NonNullForAll;
-
+import java.util.Hashtable;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.Attribute;
+import java.net.URISyntaxException;
+import java.util.regex.Pattern;
+import java.time.Instant;
+import java.util.Optional;
+import java.text.ParseException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.Hashtable;
-import javax.naming.Context;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.Attribute;
-import javax.naming.NamingException;
-
-import androidx.annotation.Nullable;
-
+import java.net.URI;
+import java.net.InetSocketAddress;
+import java.net.InetSocketA
 
 /**
  * An external endpoint (host and port) used to connect to a WireGuard {@link Peer}.
@@ -38,20 +28,17 @@ import androidx.annotation.Nullable;
 public final class InetEndpoint {
     private static final Pattern BARE_IPV6 = Pattern.compile("^[^\\[\\]]*:[^\\[\\]]*");
     private static final Pattern FORBIDDEN_CHARACTERS = Pattern.compile("[/?#]");
-
     private final String host;
     private final boolean isResolved;
     private final Object lock = new Object();
     private final int port;
     private Instant lastResolution = Instant.EPOCH;
     @Nullable private InetEndpoint resolved;
-
     private InetEndpoint(final String host, final boolean isResolved, final int port) {
         this.host = host;
         this.isResolved = isResolved;
         this.port = port;
     }
-
     public static InetEndpoint parse(final String endpoint) throws ParseException {
         if (FORBIDDEN_CHARACTERS.matcher(endpoint).find())
             throw new ParseException(InetEndpoint.class, endpoint, "Forbidden characters");
@@ -72,7 +59,6 @@ public final class InetEndpoint {
             return new InetEndpoint(uri.getHost(), false, uri.getPort());
         }
     }
-
     @Override
     public boolean equals(final Object obj) {
         if (!(obj instanceof InetEndpoint))
@@ -80,15 +66,12 @@ public final class InetEndpoint {
         final InetEndpoint other = (InetEndpoint) obj;
         return host.equals(other.host) && port == other.port;
     }
-
     public String getHost() {
         return host;
     }
-
     public int getPort() {
         return port;
     }
-
     /**
      * Generate an {@code InetEndpoint} instance with the same port and the host resolved using DNS
      * to a numeric address. If the host is already numeric, the existing instance may be returned.
@@ -140,19 +123,18 @@ public final class InetEndpoint {
                     if (resolved == null)
                         resolved = new InetEndpoint(address.getHostAddress(), true, port);
                     lastResolution = Instant.now();
-                } catch (final UnknownHostException | NamingException e) {
+                } catch (final UnknownHostException e) {
                     resolved = null;
                 }
             }
             return Optional.ofNullable(resolved);
         }
     }
-    
+
     @Override
     public int hashCode() {
         return host.hashCode() ^ port;
     }
-
     @Override
     public String toString() {
         final boolean isBareIpv6 = isResolved && BARE_IPV6.matcher(host).matches();
