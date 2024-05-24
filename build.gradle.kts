@@ -4,7 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.kapt) apply false
 }
-
+dependencies {
+    implementation 'javax.naming:jndi:1.2.1'
+}
 tasks {
     wrapper {
         gradleVersion = "8.3"
